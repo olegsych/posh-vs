@@ -1,4 +1,4 @@
-# Posh VS
+# posh-vs
 
 Makes Visual Studio 2015 command line tools available in PowerShell. 
 
