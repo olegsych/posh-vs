@@ -24,7 +24,7 @@ Describe "posh-vs" {
         RenameFile ($profile + ".bak") $profile
     }
 
-	Context "Import-EnvironmentVariables" {
+	Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable
         [string] $value 
@@ -38,7 +38,7 @@ Describe "posh-vs" {
 		It "Invokes specified batch file and extracts environment variables it sets" {
             "set $variable=$value" | Out-File $batchFile -Encoding ascii
             
-            Import-EnvironmentVariables -batchFile $batchFile
+            Import-BatchEnvironment -batchFile $batchFile
             
             (Get-Item "env:$variable").Value | Should Be $value
 		}
@@ -46,20 +46,20 @@ Describe "posh-vs" {
         It "Ignores output of batch file itself to avoid mistaking its output for actual environment variables" {
             "echo $variable=$value"  | Out-File $batchFile -Encoding ascii
 
-            Import-EnvironmentVariables -batchFile $batchFile 
+            Import-BatchEnvironment -batchFile $batchFile 
             
             Test-Path "env:$variable" | Should Be $false
         }
 
         It "Throws descriptive exception when specified batch file does not exist" {
-            { Import-EnvironmentVariables -batchFile $batchFile } | Should Throw "Batch file '$batchFile' does not exist."
+            { Import-BatchEnvironment -batchFile $batchFile } | Should Throw "Batch file '$batchFile' does not exist."
         }
 
         It "Writes verbose message with details about the batch file" {
             "" | Out-File $batchFile -Encoding ascii
             Mock Write-Verbose -ModuleName posh-vs
 
-            Import-EnvironmentVariables -batchFile $batchFile
+            Import-BatchEnvironment -batchFile $batchFile
 
             Assert-MockCalled Write-Verbose -ParameterFilter { $message -eq "Executing '$batchFile' to capture environment variables it sets." } -ModuleName posh-vs 
         }
@@ -68,7 +68,7 @@ Describe "posh-vs" {
             "set $variable=$value" | Out-File $batchFile -Encoding ascii
             Mock Write-Verbose -ModuleName posh-vs
 
-            Import-EnvironmentVariables -batchFile $batchFile
+            Import-BatchEnvironment -batchFile $batchFile
 
             Assert-MockCalled Write-Verbose -ParameterFilter { $message -eq "`$env:$variable=$value" } -ModuleName posh-vs 
         }
@@ -91,14 +91,14 @@ Describe "posh-vs" {
             $originalPath = $env:VS140ComnTools
         }
 
-        It "Invokes Import-EnvironmentVariables with VS2015 VsDevCmd.bat" {
+        It "Invokes Import-BatchEnvironment with VS2015 VsDevCmd.bat" {
             $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            Mock Import-EnvironmentVariables -ModuleName posh-vs
+            Mock Import-BatchEnvironment -ModuleName posh-vs
 
             Import-VisualStudioEnvironment
 
             [string] $expectedBatchFile = (Join-Path $env:VS140ComnTools "VsDevCmd.bat") 
-            Assert-MockCalled Import-EnvironmentVariables -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
+            Assert-MockCalled Import-BatchEnvironment -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
         }
 
         It "Throws descriptive exception when VS140COMNTOOLS environment variable is not set" {

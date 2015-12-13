@@ -1,4 +1,7 @@
-function Import-EnvironmentVariables {
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]        
+param()
+
+function Import-BatchEnvironment {
     [CmdletBinding()] param (
         [Parameter(Mandatory = $true)] [string] $batchFile
     )
@@ -24,7 +27,7 @@ function Import-VisualStudioEnvironment {
     }
 
     [string] $batchFile = (Join-Path $env:VS140COMNTOOLS "VsDevCmd.bat")
-    Import-EnvironmentVariables $batchFile
+    Import-BatchEnvironment $batchFile
 }
 
 [string] $importModulePattern = "Import-Module.*posh-vs"
@@ -74,7 +77,7 @@ function Uninstall-PoshVs {
     Write-Host "Restart PowerShell for the changes to take effect."
 }
 
-Export-ModuleMember -Function Import-EnvironmentVariables
+Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
 Export-ModuleMember -Function Install-PoshVs
 Export-ModuleMember -Function Uninstall-PoshVs
