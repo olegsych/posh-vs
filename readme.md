@@ -56,3 +56,9 @@ Publish to PowerShell Gallery:
 ```
 PS> Publish-Module -Path .\ -NuGetApiKey $yourApiKey
 ```
+
+## Credits
+
+posh-vs was inspired by [Alen Mack](http://allen-mack.blogspot.com/2008/03/replace-visual-studio-command-prompt.html), 
+[StackOverflow contributors](http://stackoverflow.com/questions/2124753/how-i-can-use-powershell-with-the-visual-studio-command-prompt)
+and [posh-git](https://github.com/dahlbyk/posh-git).
