@@ -1,6 +1,6 @@
 # Posh VS
 
-Adds Visual Studio 2015 developer tools to PowerShell. 
+Makes Visual Studio 2015 command line tools available in PowerShell. 
 
 ## Usage
 
