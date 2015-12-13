@@ -114,7 +114,6 @@ Describe "posh-vs" {
     Context "Install-PoshVs" {
 
         BeforeEach {
-            Mock Write-Host -ModuleName posh-vs
             BackupProfile
         }
 
@@ -166,12 +165,12 @@ Describe "posh-vs" {
             )
         }
 
-        It "Writes to host to explain what's going on" {
-            Install-PoshVs
-
-            Assert-MockCalled Write-Host -ParameterFilter { $object -eq "Successfully added posh-vs to profile '$profile'." } -ModuleName posh-vs
-            Assert-MockCalled Write-Host -ParameterFilter { $object -eq "Reload your profile for the changes to take effect:" } -ModuleName posh-vs
-            Assert-MockCalled Write-Host -ParameterFilter { $object -eq "    . `$profile" } -ModuleName posh-vs
+        It "Writes to output to explain what's going on" {
+            Install-PoshVs | Should Be @(
+                "Successfully added posh-vs to profile '$profile'."
+                "Reload your profile for the changes to take effect:"
+                "    . `$profile"
+            )
         }
 
         AfterEach {
@@ -182,7 +181,6 @@ Describe "posh-vs" {
     Context "Uninstall-PoshVs" {
 
         BeforeEach {
-            Mock Write-Host -ModuleName posh-vs
             BackupProfile
         }
 
@@ -213,10 +211,10 @@ Describe "posh-vs" {
         }
 
         It "Writes to host to explain what's going on" {
-            Uninstall-PoshVs
-
-            Assert-MockCalled Write-Host -ParameterFilter { $object -eq "Successfully removed posh-vs from profile '$profile'." } -ModuleName posh-vs
-            Assert-MockCalled Write-Host -ParameterFilter { $object -eq "Restart PowerShell for the changes to take effect." } -ModuleName posh-vs
+            Uninstall-PoshVs | Should Be @(
+                "Successfully removed posh-vs from profile '$profile'."
+                "Restart PowerShell for the changes to take effect."
+            )
         }
 
         AfterEach {

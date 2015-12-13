@@ -59,9 +59,9 @@ function Install-PoshVs {
     
     $profileScript | Out-File $profile
 
-    Write-Host "Successfully added posh-vs to profile '$profile'."
-    Write-Host "Reload your profile for the changes to take effect:"
-    Write-Host "    . `$profile"
+    Write-Output "Successfully added posh-vs to profile '$profile'."
+    Write-Output "Reload your profile for the changes to take effect:"
+    Write-Output "    . `$profile"
 }
 
 function Uninstall-PoshVs {
@@ -73,8 +73,8 @@ function Uninstall-PoshVs {
         } | Out-File $profile
     }
     
-    Write-Host "Successfully removed posh-vs from profile '$profile'."
-    Write-Host "Restart PowerShell for the changes to take effect."
+    Write-Output "Successfully removed posh-vs from profile '$profile'."
+    Write-Output "Restart PowerShell for the changes to take effect."
 }
 
 Export-ModuleMember -Function Import-BatchEnvironment
