@@ -1,13 +1,13 @@
 Describe "posh-vs" {
     Import-Module .\posh-vs.psm1
 
-    function DeleteFile([string] $file) {
+    function DeleteFile([Parameter(Mandatory = $true)] [string] $file) {
         if (Test-Path $file) {
             Remove-Item $file
         }
     }
 
-    function RenameFile([string] $file, [string] $newFile) {
+    function RenameFile([Parameter(Mandatory = $true)] [string] $file, [Parameter(Mandatory = $true)] [string] $newFile) {
         if (Test-Path $file) {
             Rename-Item -Path $file -NewName $newFile
         }
