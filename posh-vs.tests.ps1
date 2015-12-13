@@ -61,7 +61,7 @@ Describe "posh-vs" {
 
             Import-BatchEnvironment -batchFile $batchFile
 
-            Assert-MockCalled Write-Verbose -ParameterFilter { $message -eq "Executing '$batchFile' to capture environment variables it sets." } -ModuleName posh-vs 
+            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "Executing '$batchFile' to capture environment variables it sets." } -ModuleName posh-vs 
         }
 
         It "Writes verbose message with details about imported environment variables" {
@@ -70,7 +70,7 @@ Describe "posh-vs" {
 
             Import-BatchEnvironment -batchFile $batchFile
 
-            Assert-MockCalled Write-Verbose -ParameterFilter { $message -eq "`$env:$variable=$value" } -ModuleName posh-vs 
+            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "`$env:$variable=$value" } -ModuleName posh-vs 
         }
 
         AfterEach {
@@ -98,7 +98,7 @@ Describe "posh-vs" {
             Import-VisualStudioEnvironment
 
             [string] $expectedBatchFile = (Join-Path $env:VS140ComnTools "VsDevCmd.bat") 
-            Assert-MockCalled Import-BatchEnvironment -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
+            Assert-MockCalled -CommandName Import-BatchEnvironment -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
         }
 
         It "Throws descriptive exception when VS140COMNTOOLS environment variable is not set" {
