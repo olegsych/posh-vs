@@ -24,7 +24,7 @@ Describe "posh-vs" {
         RenameFile ($profile + ".bak") $profile
     }
 
-	Context "Import-BatchEnvironment" {
+    Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable
         [string] $value 
@@ -35,13 +35,13 @@ Describe "posh-vs" {
             $batchFile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName() + ".bat")
         }
 
-		It "Invokes specified batch file and extracts environment variables it sets" {
+        It "Invokes specified batch file and extracts environment variables it sets" {
             "set $variable=$value" | Out-File $batchFile -Encoding ascii
             
             Import-BatchEnvironment -batchFile $batchFile
             
             (Get-Item "env:$variable").Value | Should Be $value
-		}
+        }
 
         It "Ignores output of batch file itself to avoid mistaking its output for actual environment variables" {
             "echo $variable=$value"  | Out-File $batchFile -Encoding ascii
@@ -82,7 +82,7 @@ Describe "posh-vs" {
                 Remove-Item "env:$variable"
             }
         }
-	}
+    }
 
     Context "Import-VisualStudioEnvironment" {
         [string] $originalPath
