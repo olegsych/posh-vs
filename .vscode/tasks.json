@@ -1,0 +1,14 @@
+{
+    "version": "0.1.0",
+    "command": "powershell",
+    "isShellCommand": true,
+    "args": ["-NoProfile", "-NoLogo", "-NonInteractive"],
+    "tasks": [
+        {
+            "taskName": "Test",
+            "suppressTaskName": true,
+            "isTestCommand": true,
+            "args": ["-Command", "Invoke-Pester"]
+        }
+    ]
+}
