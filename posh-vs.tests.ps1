@@ -102,7 +102,10 @@ Describe "posh-vs" {
         }
 
         It "Throws descriptive exception when VS140COMNTOOLS environment variable is not set" {
-            Remove-Item "env:\VS140COMNTOOLS"
+            if ($env:VS140ComnTools) {
+                Remove-Item "env:\VS140COMNTOOLS"
+            }
+
             { Import-VisualStudioEnvironment } | Should Throw "Unable to determine location of Visual Studio 2015. The VS140COMNTOOLS environment is not set."
         }
 
