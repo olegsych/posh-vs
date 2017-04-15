@@ -6,6 +6,6 @@ Task Build {
 }
 
 Task Test {
-    Invoke-Pester
+    Invoke-Pester -EnableExit
 }
 
