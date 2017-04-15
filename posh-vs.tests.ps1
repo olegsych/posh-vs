@@ -1,10 +1,18 @@
 Describe "posh-vs" {
     Import-Module .\posh-vs.psm1
 
-    function DeleteFile([Parameter(Mandatory = $true)] [string] $file) {
-        if (Test-Path $file) {
-            Remove-Item $file
+    [string] $originalProfile
+
+    BeforeEach {
+        $originalProfile = $global:profile
+        $global:profile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+    }
+
+    AfterEach {
+        if (Test-Path $global:profile) {
+            Remove-Item $global:profile
         }
+        $global:profile = $originalProfile
     }
 
     Context "Get-VisualStudioBatchFile" {
@@ -128,13 +136,6 @@ Describe "posh-vs" {
     }
 
     Context "Install-PoshVs" {
-        [string] $originalProfile
-
-        BeforeEach {
-            $originalProfile = $global:profile
-            $global:profile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-        }
-
         It "Appends Import-Module and Import-VisualStudioEnvironment commands to existing profile script" {
             [string] $existingScript = "Write-Host Foo"
             New-Item -Path $global:profile -ItemType File -Value $existingScript
@@ -190,21 +191,9 @@ Describe "posh-vs" {
                 "    . `$profile"
             )
         }
-
-        AfterEach {
-            DeleteFile $global:profile
-            $global:profile = $originalProfile
-        }
     }
 
     Context "Uninstall-PoshVs" {
-        [string] $originalProfile
-
-        BeforeEach {
-            $originalProfile = $global:profile
-            $global:profile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-        }
-
         It "Removes Import-Module from profile script" {
             "    Import-Module   posh-vs   " | Out-File $global:profile
 
@@ -236,11 +225,6 @@ Describe "posh-vs" {
                 "Successfully removed posh-vs from profile '$global:profile'."
                 "Restart PowerShell for the changes to take effect."
             )
-        }
-
-        AfterEach {
-            DeleteFile $global:profile
-            $global:profile = $originalProfile
         }
     }
 
