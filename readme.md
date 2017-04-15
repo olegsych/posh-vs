@@ -35,7 +35,7 @@ Install pre-requisites.
 PS> .\init.ps1
 ```
 
-Build and test.
+`Ctrl+Shift+B` to build and test in [VSCode](https://code.visualstudio.com) or
 ``` 
 PS> Invoke-psake
 ```
