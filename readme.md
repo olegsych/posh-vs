@@ -35,20 +35,9 @@ Install pre-requisites.
 PS> .\init.ps1
 ```
 
-Run tests to verify code changes:
+Build and test.
 ``` 
-PS> Invoke-Pester
-```
-
-Run script analyzer to verify compliance with the PowerShell Gallery requirements:
-``` 
-PS> Invoke-ScriptAnalyzer .\posh-vs.psm1
-PS> Invoke-ScriptAnalyzer .\posh-vs.tests.ps1
-```
-
-Verify module manifest changes: 
-```
-PS> Test-ModuleManifest .\posh-vs.psd1
+PS> Invoke-psake
 ```
 
 Publish to PowerShell Gallery:
