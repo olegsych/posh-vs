@@ -7,23 +7,6 @@ Describe "posh-vs" {
         }
     }
 
-    function RenameFile([Parameter(Mandatory = $true)] [string] $file, [Parameter(Mandatory = $true)] [string] $newFile) {
-        if (Test-Path $file) {
-            Rename-Item -Path $file -NewName $newFile
-        }
-    }
-
-    function BackupProfile {
-        [string] $backup = ($profile + ".bak")
-        DeleteFile $backup
-        RenameFile $profile $backup
-    }
-
-    function RestoreProfile {
-        DeleteFile $profile
-        RenameFile ($profile + ".bak") $profile
-    }
-
     Context "Get-VisualStudioBatchFile" {
         [string] $originalVS140ComnTools
 
@@ -145,18 +128,20 @@ Describe "posh-vs" {
     }
 
     Context "Install-PoshVs" {
+        [string] $originalProfile
 
         BeforeEach {
-            BackupProfile
+            $originalProfile = $global:profile
+            $global:profile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
         }
 
         It "Appends Import-Module and Import-VisualStudioEnvironment commands to existing profile script" {
             [string] $existingScript = "Write-Host Foo"
-            New-Item -Path $profile -ItemType File -Value $existingScript
+            New-Item -Path $global:profile -ItemType File -Value $existingScript
 
             Install-PoshVs
 
-            Get-Content $profile | Should Be @(
+            Get-Content $global:profile | Should Be @(
                 $existingScript,
                 "Import-Module posh-vs",
                 "Import-VisualStudioEnvironment"
@@ -166,7 +151,7 @@ Describe "posh-vs" {
         It "Creates new profile script if necessary" {
             Install-PoshVs
 
-            Get-Content $profile | Should Be @(
+            Get-Content $global:profile | Should Be @(
                 "Import-Module posh-vs",
                 "Import-VisualStudioEnvironment"
             )
@@ -175,11 +160,11 @@ Describe "posh-vs" {
         It "Doesn't duplicate Import-Module command if profile script already contains it" {
             @(
                 "  Import-Module   posh-vs"
-            ) | Out-File $profile
+            ) | Out-File $global:profile
 
             Install-PoshVs
 
-            Get-Content $profile | Should Be @(
+            Get-Content $global:profile | Should Be @(
                 "  Import-Module   posh-vs",
                 "Import-VisualStudioEnvironment"
             )
@@ -188,11 +173,11 @@ Describe "posh-vs" {
         It "Doesn't duplicate Import-VisualStudioEnvironment command if profile already contains it" {
             @(
                 "  Import-VisualStudioEnvironment"
-            ) | Out-File $profile
+            ) | Out-File $global:profile
 
             Install-PoshVs
 
-            Get-Content $profile | Should Be @(
+            Get-Content $global:profile | Should Be @(
                 "Import-Module posh-vs",
                 "  Import-VisualStudioEnvironment"
             )
@@ -200,58 +185,62 @@ Describe "posh-vs" {
 
         It "Writes to output to explain what's going on" {
             Install-PoshVs | Should Be @(
-                "Successfully added posh-vs to profile '$profile'."
+                "Successfully added posh-vs to profile '$global:profile'."
                 "Reload your profile for the changes to take effect:"
                 "    . `$profile"
             )
         }
 
         AfterEach {
-            RestoreProfile
+            DeleteFile $global:profile
+            $global:profile = $originalProfile
         }
     }
 
     Context "Uninstall-PoshVs" {
+        [string] $originalProfile
 
         BeforeEach {
-            BackupProfile
+            $originalProfile = $global:profile
+            $global:profile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
         }
 
         It "Removes Import-Module from profile script" {
-            "    Import-Module   posh-vs   " | Out-File $profile
+            "    Import-Module   posh-vs   " | Out-File $global:profile
 
             Uninstall-PoshVs
 
-            Get-Content $profile | Should BeNullOrEmpty
+            Get-Content $global:profile | Should BeNullOrEmpty
         }
 
         It "Removes Import-VisualStudioEnvironment from profile script" {
-            "    Import-VisualStudioEnvironment   " | Out-File $profile
+            "    Import-VisualStudioEnvironment   " | Out-File $global:profile
 
             Uninstall-PoshVs
 
-            Get-Content $profile | Should BeNullOrEmpty
+            Get-Content $global:profile | Should BeNullOrEmpty
         }
 
         It "Preserves code unrelated to posh-vs" {
             [string[]] $expected = @( "Write-Host Foo")
-            $expected | Out-File $profile
+            $expected | Out-File $global:profile
             
             Uninstall-PoshVs
             
-            [string[]] $actual = Get-Content $profile 
+            [string[]] $actual = Get-Content $global:profile 
             $actual | Should Be $expected
         }
 
         It "Writes to host to explain what's going on" {
             Uninstall-PoshVs | Should Be @(
-                "Successfully removed posh-vs from profile '$profile'."
+                "Successfully removed posh-vs from profile '$global:profile'."
                 "Restart PowerShell for the changes to take effect."
             )
         }
 
         AfterEach {
-            RestoreProfile
+            DeleteFile $global:profile
+            $global:profile = $originalProfile
         }
     }
 
