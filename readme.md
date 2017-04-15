@@ -32,8 +32,7 @@ PS> exit
 
 Install pre-requisites.
 ``` 
-PS> Install-Module Pester
-PS> Install-Module PSScriptAnalyzer
+PS> .\init.ps1
 ```
 
 Run tests to verify code changes:
