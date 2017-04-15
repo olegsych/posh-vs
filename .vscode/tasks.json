@@ -2,13 +2,16 @@
     "version": "0.1.0",
     "command": "powershell",
     "isShellCommand": true,
-    "args": ["-NoProfile", "-NoLogo", "-NonInteractive"],
+    "args": ["-NoProfile", "-NoLogo", "-NonInteractive", "-Command", "Invoke-psake"],
     "tasks": [
         {
+            "taskName": "Build",
+            "isBuildCommand": true,
+            "suppressTaskName": true
+        },
+        {
             "taskName": "Test",
-            "suppressTaskName": true,
-            "isTestCommand": true,
-            "args": ["-Command", "Invoke-Pester"]
+            "isTestCommand": true
         }
     ]
 }
