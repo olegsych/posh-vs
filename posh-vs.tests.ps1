@@ -136,7 +136,7 @@ Describe "posh-vs" {
     }
 
     Context "Install-PoshVs" {
-        It "Appends Import-Module and Import-VisualStudioEnvironment commands to existing profile script" {
+        It "Appends Import-VisualStudioEnvironment commands to existing profile script" {
             [string] $existingScript = "Write-Host Foo"
             New-Item -Path $global:profile -ItemType File -Value $existingScript
 
@@ -144,7 +144,6 @@ Describe "posh-vs" {
 
             Get-Content $global:profile | Should Be @(
                 $existingScript,
-                "Import-Module posh-vs",
                 "Import-VisualStudioEnvironment"
             )
         }
@@ -153,20 +152,6 @@ Describe "posh-vs" {
             Install-PoshVs
 
             Get-Content $global:profile | Should Be @(
-                "Import-Module posh-vs",
-                "Import-VisualStudioEnvironment"
-            )
-        }
-
-        It "Doesn't duplicate Import-Module command if profile script already contains it" {
-            @(
-                "  Import-Module   posh-vs"
-            ) | Out-File $global:profile
-
-            Install-PoshVs
-
-            Get-Content $global:profile | Should Be @(
-                "  Import-Module   posh-vs",
                 "Import-VisualStudioEnvironment"
             )
         }
@@ -179,7 +164,6 @@ Describe "posh-vs" {
             Install-PoshVs
 
             Get-Content $global:profile | Should Be @(
-                "Import-Module posh-vs",
                 "  Import-VisualStudioEnvironment"
             )
         }
@@ -194,7 +178,7 @@ Describe "posh-vs" {
     }
 
     Context "Uninstall-PoshVs" {
-        It "Removes Import-Module from profile script" {
+        It "Removes legacy Import-Module from profile script" {
             "    Import-Module   posh-vs   " | Out-File $global:profile
 
             Uninstall-PoshVs

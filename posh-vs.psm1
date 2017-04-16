@@ -56,17 +56,10 @@ function Install-PoshVs {
     if (Test-Path $profile) {
         $profileScript = Get-Content $profile
         foreach ($line in $profileScript) {
-            if ($line -match $importModulePattern) {
-                $importModule = $false
-            }
             if ($line -match $importEnvironmentPattern) {
                 $importEnvironment = $false
             }
         }
-    }
-
-    if ($importModule) {
-        $profileScript += "Import-Module posh-vs"
     }
 
     if ($importEnvironment) {
