@@ -10,5 +10,5 @@ Task Test {
 }
 
 Task Publish {
-     Publish-Module -Path .\ -NuGetApiKey $PowerShellApiKey
+     Publish-Module -Path .\posh-vs.psd1 -NuGetApiKey $PowerShellApiKey
 }
