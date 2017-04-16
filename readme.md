@@ -40,11 +40,6 @@ PS> .\init.ps1
 PS> Invoke-psake
 ```
 
-Publish to PowerShell Gallery:
-```
-PS> Publish-Module -Path .\ -NuGetApiKey $yourApiKey
-```
-
 ## Credits
 
 posh-vs was inspired by [Alen Mack](http://allen-mack.blogspot.com/2008/03/replace-visual-studio-command-prompt.html), 
