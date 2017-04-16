@@ -34,5 +34,5 @@ Task Test {
 }
 
 Task Publish {
-     Publish-Module -Path .\out\ -NuGetApiKey $env:PowerShellApiKey
+     Publish-Module -Path .\out\ -NuGetApiKey $env:PowerShellGalleryApiKey
 }
