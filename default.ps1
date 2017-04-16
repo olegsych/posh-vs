@@ -9,6 +9,6 @@ Task Test {
     Invoke-Pester -EnableExit
 }
 
-Task Deploy {
+Task Publish {
      Publish-Module -Path .\ -NuGetApiKey $PowerShellApiKey
 }
