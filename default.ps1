@@ -1,12 +1,12 @@
 Task default -Depends Build, Test
 
 Task Build {
-    Invoke-ScriptAnalyzer .\posh-vs.psm1
-    Test-ModuleManifest .\posh-vs.psd1
+    Invoke-ScriptAnalyzer .\src\posh-vs.psm1
+    Test-ModuleManifest .\src\posh-vs.psd1
 }
 
 Task Test {
-    Invoke-Pester -EnableExit
+    Invoke-Pester -Script .\test\posh-vs.tests.ps1 -EnableExit
 }
 
 Task Publish {

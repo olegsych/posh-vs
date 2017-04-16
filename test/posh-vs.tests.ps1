@@ -1,5 +1,5 @@
 Describe "posh-vs" {
-    Import-Module .\posh-vs.psm1
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
 
     [string] $originalProfile
 
