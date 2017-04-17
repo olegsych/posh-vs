@@ -1,14 +1,6 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]        
 param()
 
-<# .SYNOPSIS
-Returns full name of the VsDevCmd.bat from the latest Visual Studio installation. #>
-function Get-VisualStudioBatchFile {
-    if ($env:VS140COMNTOOLS) {
-        Join-Path $env:VS140COMNTOOLS "VsDevCmd.bat"
-    }
-}
-
 <# .SYNOPSIS 
 Executes a batch file and copies environment variables it sets to the current
 PowerShell session #>
@@ -88,7 +80,6 @@ function Uninstall-PoshVs {
     Write-Output "Restart PowerShell for the changes to take effect."
 }
 
-Export-ModuleMember -Function Get-VisualStudioBatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
 Export-ModuleMember -Function Install-PoshVs

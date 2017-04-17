@@ -15,36 +15,6 @@ Describe "posh-vs" {
         $global:profile = $originalProfile
     }
 
-    Context "Get-VisualStudioBatchFile" {
-        [string] $originalVS140ComnTools
-
-        BeforeEach {
-            $originalVS140ComnTools = $env:VS140ComnTools
-        }
-
-        It "Returns VsDevCmd.bat from Visual Studio 2015 installation based on VS140COMNTOOLS environment variable" {
-            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-
-            $result = Get-VisualStudioBatchFile
-            
-            $result | Should Be (Join-Path $env:VS140ComnTools "VsDevCmd.bat")
-        }
-
-        It "Doesn't return VsDevCmd.bat when Visual Studio 2015 is not installed and VS140COMNTOOLS environment variable isn't defined" {
-            if ($env:VS140ComnTools) {
-                Remove-Item "env:\VS140COMNTOOLS"
-            }
-
-            $result = Get-VisualStudioBatchFile
-
-            $result | Should BeNullOrEmpty
-        }
-
-        AfterEach {
-            $env:VS140ComnTools = $originalVS140ComnTools
-        }
-    }
-
     Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable
