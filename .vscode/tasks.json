@@ -2,7 +2,7 @@
     "version": "0.1.0",
     "command": "powershell",
     "isShellCommand": true,
-    "args": ["-NoProfile", "-NoLogo", "-NonInteractive", "-Command", "Invoke-psake"],
+    "args": ["-NoProfile", "-NoLogo", "-NonInteractive", "-Command", "Invoke-psake -NoLogo -NoTR"],
     "tasks": [
         {
             "taskName": "Build",
