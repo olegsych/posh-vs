@@ -1,0 +1,27 @@
+# AppVeyor build definition
+# http://www.appveyor.com/docs/appveyor-yml
+
+version: 0.1.{build}
+
+pull_requests:
+  do_not_increment_build_number: true
+
+branches:
+  only:
+  - master
+
+environment:
+  PowerShellGalleryApiKey:
+    secure: rRDrp3zXv9dYV/vbDq/J8ULAnArDiJz+qJqi4pxade8NWfYFwrr5TYu116nlKmFV
+
+install:
+- ps: .\init.ps1
+
+build_script:
+- ps: Invoke-psake Build -NoLogo -NoTR
+
+test_script:
+- ps: Invoke-psake Test -NoLogo -NoTR
+
+deploy_script:
+- ps: Invoke-psake Publish -NoLogo -NoTR
