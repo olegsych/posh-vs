@@ -1,3 +1,5 @@
+# psake build definition
+
 Task default -Depends Build, Test
 
 Properties {
