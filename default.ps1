@@ -1,6 +1,8 @@
 # psake build definition
 # https://github.com/psake/psake
 
+$ErrorActionPreference = "Stop"
+
 Task default -Depends Build, Test
 
 Properties {
@@ -8,8 +10,12 @@ Properties {
 }
 
 Task Clean {
-    Remove-Item .\out -Recurse -Force
-    New-Item -ItemType Directory out | Write-Verbose
+    $outputDirectory = "out"
+    if (Test-Path $outputDirectory) {
+        Remove-Item $outputDirectory -Recurse -Force
+    }
+
+    New-Item -ItemType Directory $outputDirectory | Write-Verbose
 }
 
 Task BuildScript -Depends Clean {
