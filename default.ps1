@@ -40,9 +40,7 @@ Task Build -Depends BuildScript, BuildManifest
 
 Task Test {
     $tests = Invoke-Pester -Script .\test\posh-vs.tests.ps1 -PassThru
-    if ($tests.FailedCount -ne 0) { 
-        throw "$($tests.FailedCount) test(s) failed." 
-    }
+    Assert ($tests.FailedCount -eq 0) "$($tests.FailedCount) test(s) failed." 
 }
 
 Task Publish {
