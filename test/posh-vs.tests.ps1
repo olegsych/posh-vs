@@ -182,11 +182,5 @@ Describe "posh-vs" {
         }
     }
 
-    Context "default.ps1" {
-        It "Fails the build" {
-            $true | Should Be $false
-        }
-    }
-
     Remove-Module posh-vs
 }
