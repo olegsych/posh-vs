@@ -1,0 +1,17 @@
+{
+    "version": "0.1.0",
+    "command": "powershell",
+    "isShellCommand": true,
+    "args": ["-NoProfile", "-NoLogo", "-NonInteractive", "-Command", "Invoke-psake -NoLogo -NoTR"],
+    "tasks": [
+        {
+            "taskName": "Build",
+            "isBuildCommand": true,
+            "suppressTaskName": true
+        },
+        {
+            "taskName": "Test",
+            "isTestCommand": true
+        }
+    ]
+}

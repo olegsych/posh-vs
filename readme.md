@@ -6,7 +6,7 @@ Makes Visual Studio 2015 command line tools available in PowerShell.
 
 Install posh-vs from the [PowerShell Gallery](https://www.powershellgallery.com/packages/posh-vs):
 ``` 
-PS> Install-Module posh-vs
+PS> Install-Module posh-vs -Scope CurrentUser
 PS> Install-PoshVs
 ``` 
 
@@ -32,29 +32,12 @@ PS> exit
 
 Install pre-requisites.
 ``` 
-PS> Install-Module Pester
-PS> Install-Module PSScriptAnalyzer
+PS> .\init.ps1
 ```
 
-Run tests to verify code changes:
+`Ctrl+Shift+B` to build and test in [VSCode](https://code.visualstudio.com) or
 ``` 
-PS> Invoke-Pester
-```
-
-Run script analyzer to verify compliance with the PowerShell Gallery requirements:
-``` 
-PS> Invoke-ScriptAnalyzer .\posh-vs.psm1
-PS> Invoke-ScriptAnalyzer .\posh-vs.tests.ps1
-```
-
-Verify module manifest changes: 
-```
-PS> Test-ModuleManifest .\posh-vs.psd1
-```
-
-Publish to PowerShell Gallery:
-```
-PS> Publish-Module -Path .\ -NuGetApiKey $yourApiKey
+PS> Invoke-psake
 ```
 
 ## Credits
