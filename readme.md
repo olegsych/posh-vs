@@ -30,6 +30,8 @@ PS> exit
 
 ## Development
 
+[![Build status](https://ci.appveyor.com/api/projects/status/github/olegsych/posh-vs?branch=master)](https://ci.appveyor.com/project/olegsych/posh-vs/branch/master)
+
 Install pre-requisites.
 ``` 
 PS> .\init.ps1
