@@ -184,7 +184,7 @@ Describe "posh-vs" {
 
     Context "default.ps1" {
         It "Fails the build" {
-            $true | SHould Be $false
+            $true | Should Be $false
         }
     }
 
