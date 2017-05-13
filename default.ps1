@@ -39,7 +39,9 @@ Task BuildManifest -Depends Clean {
 Task Build -Depends BuildScript, BuildManifest
 
 Task Test {
-    Invoke-Pester -Script .\test\posh-vs.tests.ps1 -EnableExit
+    $testResult = Invoke-Pester -Script .\test\posh-vs.tests.ps1 -PassThru
+    Assert -conditionToCheck ($testResult.FailedCount -eq 0) `
+        -failureMessage "One or more Pester tests failed, build cannot continue."
 }
 
 Task Publish {
