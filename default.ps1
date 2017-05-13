@@ -7,20 +7,25 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+Properties {
+    $outputDirectory = "out"
+    $moduleDirectory = $outputDirectory + "\posh-vs"
+}
+
 Task default -Depends Build, Test
 
 Task Clean {
-    $outputDirectory = "out"
     if (Test-Path $outputDirectory) {
         Remove-Item $outputDirectory -Recurse -Force
     }
 
     New-Item -ItemType Directory $outputDirectory | Write-Verbose
-}
+    New-Item -ItemType Directory $moduleDirectory | Write-Verbose
+} 
 
 Task BuildScript -Depends Clean {
     Invoke-ScriptAnalyzer .\src\posh-vs.psm1
-    Copy-Item .\src\posh-vs.psm1 -Destination .\out\
+    Copy-Item .\src\posh-vs.psm1 -Destination $moduleDirectory
 }
 
 Task BuildManifest -Depends Clean {
@@ -31,9 +36,9 @@ Task BuildManifest -Depends Clean {
         $expanded += $ExecutionContext.InvokeCommand.ExpandString($line)
     }
 
-    $expanded | Out-File .\out\posh-vs.psd1
+    $expanded | Out-File $moduleDirectory\posh-vs.psd1
 
-    Test-ModuleManifest .\out\posh-vs.psd1 | Write-Verbose
+    Test-ModuleManifest $moduleDirectory\posh-vs.psd1 | Write-Verbose
 }
 
 Task Build -Depends BuildScript, BuildManifest
@@ -44,5 +49,5 @@ Task Test {
 }
 
 Task Publish -Depends BuildScript, BuildManifest {
-     Publish-Module -Path .\out\ -NuGetApiKey $env:PowerShellGalleryApiKey
+     Publish-Module -Path $moduleDirectory -NuGetApiKey $env:PowerShellGalleryApiKey
 }
