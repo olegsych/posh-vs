@@ -29,5 +29,5 @@ test_script:
 
 deploy_script:
 - ps: |
-      Invoke-psake Publish -NoLogo -NoTR
+      Invoke-psake Publish -NoLogo -NoTR -parameters @{ "moduleVersion" = $env:APPVEYOR_BUILD_VERSION }
       if (-not $psake.build_success) { exit 1 }

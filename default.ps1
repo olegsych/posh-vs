@@ -1,13 +1,13 @@
 # psake build definition
 # https://github.com/psake/psake
 
+param(
+  [System.Version] $moduleVersion = '0.0.0'
+)
+
 $ErrorActionPreference = "Stop"
 
 Task default -Depends Build, Test
-
-Properties {
-    $moduleVersion = if ($env:APPVEYOR) { $env:APPVEYOR_BUILD_VERSION } else { '0.0.0' }
-}
 
 Task Clean {
     $outputDirectory = "out"
@@ -43,6 +43,6 @@ Task Test {
     Assert ($tests.FailedCount -eq 0) "$($tests.FailedCount) test(s) failed." 
 }
 
-Task Publish {
+Task Publish -Depends BuildScript, BuildManifest {
      Publish-Module -Path .\out\ -NuGetApiKey $env:PowerShellGalleryApiKey
 }
