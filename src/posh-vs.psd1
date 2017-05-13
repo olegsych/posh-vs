@@ -8,7 +8,7 @@
     FunctionsToExport = '*'
     PrivateData = @{
         PSData = @{
-            Tags = @('Visual Studio')
+            Tags = @('VisualStudio', 'MSBuild')
             LicenseUri = 'https://github.com/olegsych/posh-vs/blob/master/LICENSE'
             ProjectUri = 'https://github.com/olegsych/posh-vs'
         }
