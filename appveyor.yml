@@ -18,10 +18,16 @@ install:
 - ps: .\init.ps1
 
 build_script:
-- ps: Invoke-psake Build -NoLogo -NoTR
+- ps: |
+      Invoke-psake Build -NoLogo -NoTR
+      if (-not $psake.build_success) { exit 1 }
 
 test_script:
-- ps: Invoke-psake Test -NoLogo -NoTR
+- ps: |
+      Invoke-psake Test -NoLogo -NoTR
+      if (-not $psake.build_success) { exit 1 }
 
 deploy_script:
-- ps: Invoke-psake Publish -NoLogo -NoTR
+- ps: |
+      Invoke-psake Publish -NoLogo -NoTR
+      if (-not $psake.build_success) { exit 1 }
