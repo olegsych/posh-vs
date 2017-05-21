@@ -15,6 +15,32 @@ Describe "posh-vs" {
         $global:profile = $originalProfile
     }
 
+    Context "Get-VisualStudio2015BatchFile" {
+        [string] $originalPath
+
+        BeforeEach {
+            $originalPath = $env:VS140ComnTools
+        }
+
+        It 'Returns path to VsDevCmd.bat when $env:V140ComnTools is defined' {
+            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+
+            Get-VisualStudio2015BatchFile | Should Be (Join-Path $env:VS140ComnTools "VsDevCmd.bat")
+        }
+
+        It 'Does not return path to VsDevCmd.bat when $env:V140ComnTools is not defined' {
+            if ($env:VS140ComnTools) {
+                Remove-Item "env:\VS140COMNTOOLS"
+            }
+
+            Get-VisualStudio2015BatchFile | Should BeNullOrEmpty
+        }
+
+        AfterEach {
+            $env:VS140ComnTools = $originalPath
+        }
+    }
+
     Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable

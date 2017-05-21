@@ -2,6 +2,14 @@
 param()
 
 <# .SYNOPSIS 
+Returns full path to the Visual Studio 2015's VsDevCmd.bat #>
+function Get-VisualStudio2015BatchFile {
+    if ($env:VS140ComnTools) {
+        Join-Path $env:VS140ComnTools "VsDevCmd.bat"
+    }
+}
+
+<# .SYNOPSIS 
 Executes a batch file and copies environment variables it sets to the current
 PowerShell session #>
 function Import-BatchEnvironment {
@@ -80,6 +88,7 @@ function Uninstall-PoshVs {
     Write-Output "Restart PowerShell for the changes to take effect."
 }
 
+Export-ModuleMember -Function Get-VisualStudio2015BatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
 Export-ModuleMember -Function Install-PoshVs
