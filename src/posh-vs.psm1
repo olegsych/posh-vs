@@ -2,11 +2,23 @@
 param()
 
 <# .SYNOPSIS 
-Returns full path to the Visual Studio 2015's VsDevCmd.bat #>
+Returns full path to VsDevCmd.bat of Visual Studio 2017 if it's installed #>
 function Get-VisualStudio2015BatchFile {
     if ($env:VS140ComnTools) {
         Join-Path $env:VS140ComnTools "VsDevCmd.bat"
     }
+}
+
+<# .SYNOPSIS 
+Returns full path to VsDevCmd.bat of all installed Visual Studio 2017 instances #>
+function Get-VisualStudio2017BatchFile {
+}
+
+<# .SYNOPSIS
+Returns paths to VsDevCmd.bat files of all installed Visual Studio instances #>
+function Get-VisualStudioBatchFile {
+    Get-VisualStudio2017BatchFile
+    Get-VisualStudio2015BatchFile
 }
 
 <# .SYNOPSIS 
@@ -89,6 +101,8 @@ function Uninstall-PoshVs {
 }
 
 Export-ModuleMember -Function Get-VisualStudio2015BatchFile
+Export-ModuleMember -Function Get-VisualStudio2017BatchFile
+Export-ModuleMember -Function Get-VisualStudioBatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
 Export-ModuleMember -Function Install-PoshVs
