@@ -41,6 +41,32 @@ Describe "posh-vs" {
         }
     }
 
+    Context 'Get-VisualStudio2017BatchFile' {
+        It 'Returns VsDevCmd.bat paths determined based on Visual Studio 2017 application descriptions' {
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $instance1RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            [string] $instance2RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2017ApplicationDescription -ModuleName posh-vs {
+                "@$instance1RootPath\Common7\IDE\devenvdesc.dll,-1234"
+                "@$instance2RootPath\Common7\IDE\devenvdesc.dll,-321"
+            }.GetNewClosure()
+
+            Get-VisualStudio2017BatchFile | Should Be @(
+                "$instance1RootPath\Common7\Tools\VsDevCmd.bat"
+                "$instance2RootPath\Common7\Tools\VsDevCmd.bat"
+            )
+        }
+
+        It 'Throws descriptive error when Get-VisualStudio2017ApplicationDescription returns unexpected string' {
+            [string] $unexpected = 'unexpected'
+            Mock Get-VisualStudio2017ApplicationDescription -ModuleName posh-vs {
+                $unexpected
+            }.GetNewClosure()
+
+            { Get-VisualStudio2017BatchFile } | Should Throw "Cannot parse Visual Studio ApplicationDescription: $unexpected"
+        }
+    }
+
     Context 'Get-VisualStudioBatchFile' {
         It 'Returns VsDevCmd.bat of Visual Studio 2017 followed by those of Visual Studio 2015' {
             [string] $vs2017BatchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())

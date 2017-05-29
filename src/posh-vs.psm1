@@ -1,7 +1,7 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]        
 param()
 
-<# .SYNOPSIS 
+<# .SYNOPSIS
 Returns full path to VsDevCmd.bat of Visual Studio 2017 if it's installed #>
 function Get-VisualStudio2015BatchFile {
     if ($env:VS140ComnTools) {
@@ -9,9 +9,23 @@ function Get-VisualStudio2015BatchFile {
     }
 }
 
-<# .SYNOPSIS 
+<# .SYNOPSIS
+Returns ApplicationDescription registry entries of all installed Visual Studio 2017 instances #>
+function Get-VisualStudio2017ApplicationDescription {
+}
+
+<# .SYNOPSIS
 Returns full path to VsDevCmd.bat of all installed Visual Studio 2017 instances #>
 function Get-VisualStudio2017BatchFile {
+    Get-VisualStudio2017ApplicationDescription |
+    ForEach-Object {
+        # @C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenvdesc.dll,-1004
+        if ($_ -match '@(?<Common7>.*)\\IDE\\devenvdesc.dll,-(?:\d*)') {
+            return Join-Path $matches.Common7 'Tools\VsDevCmd.bat'
+        }
+
+        throw "Cannot parse Visual Studio ApplicationDescription: $_"
+    }
 }
 
 <# .SYNOPSIS
@@ -101,6 +115,7 @@ function Uninstall-PoshVs {
 }
 
 Export-ModuleMember -Function Get-VisualStudio2015BatchFile
+Export-ModuleMember -Function Get-VisualStudio2017ApplicationDescription
 Export-ModuleMember -Function Get-VisualStudio2017BatchFile
 Export-ModuleMember -Function Get-VisualStudioBatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
