@@ -26,8 +26,6 @@ function Get-VisualStudio2017BatchFile {
     }
 }
 
-<# .SYNOPSIS
-Returns paths to VsDevCmd.bat files of all installed Visual Studio instances #>
 function Get-VisualStudioBatchFile {
     Get-VisualStudio2017BatchFile
     Get-VisualStudio2015BatchFile
@@ -112,7 +110,6 @@ function Uninstall-PoshVs {
     Write-Output "Restart PowerShell for the changes to take effect."
 }
 
-Export-ModuleMember -Function Get-VisualStudioBatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
 Export-ModuleMember -Function Install-PoshVs

@@ -15,19 +15,6 @@ Describe "posh-vs" {
         $global:profile = $originalProfile
     }
 
-    Context 'Get-VisualStudioBatchFile' {
-        It 'Returns VsDevCmd.bat of Visual Studio 2017 followed by those of Visual Studio 2015' {
-            [string] $vs2017BatchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            [string] $vs2017BatchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            Mock Get-VisualStudio2017BatchFile { @($vs2017BatchFile1, $vs2017BatchFile2) }.GetNewClosure() -ModuleName posh-vs
-
-            [string] $vs2015BatchFile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            Mock Get-VisualStudio2015BatchFile { $vs2015BatchFile }.GetNewClosure() -ModuleName posh-vs
-
-            Get-VisualStudioBatchFile | Should Be @($vs2017BatchFile1, $vs2017BatchFile2, $vs2015BatchFile)
-        }
-    }
-
     Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable
@@ -313,6 +300,27 @@ Describe 'Get-VisualStudio2017BatchFile' {
 
             It 'Throws descriptive error' {
                 { Get-VisualStudio2017BatchFile } | Should Throw "Cannot parse Visual Studio ApplicationDescription: $unexpected"
+            }
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudioBatchFile' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Context 'Multiple versions of Visual Studio are installed' {
+            [string] $vs2017BatchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $vs2017BatchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2017BatchFile { @($vs2017BatchFile1, $vs2017BatchFile2) }.GetNewClosure()
+
+            [string] $vs2015BatchFile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2015BatchFile { $vs2015BatchFile }.GetNewClosure()
+
+            It 'Returns batch files of Visual Studio 2017 followed by those of Visual Studio 2015' {
+                Get-VisualStudioBatchFile | Should Be @($vs2017BatchFile1, $vs2017BatchFile2, $vs2015BatchFile)
             }
         }
     }
