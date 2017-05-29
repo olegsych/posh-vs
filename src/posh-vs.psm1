@@ -9,8 +9,6 @@ function Get-VisualStudio2015BatchFile {
     }
 }
 
-<# .SYNOPSIS
-Returns ApplicationDescription registry entries of all installed Visual Studio 2017 instances #>
 function Get-VisualStudio2017ApplicationDescription {
     & {
         Get-ItemProperty HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio_*\Capabilities
@@ -18,8 +16,6 @@ function Get-VisualStudio2017ApplicationDescription {
     } | ForEach-Object { $_.ApplicationDescription }
 }
 
-<# .SYNOPSIS
-Returns full path to VsDevCmd.bat of all installed Visual Studio 2017 instances #>
 function Get-VisualStudio2017BatchFile {
     Get-VisualStudio2017ApplicationDescription |
     ForEach-Object {
@@ -119,7 +115,6 @@ function Uninstall-PoshVs {
 }
 
 Export-ModuleMember -Function Get-VisualStudio2015BatchFile
-Export-ModuleMember -Function Get-VisualStudio2017BatchFile
 Export-ModuleMember -Function Get-VisualStudioBatchFile
 Export-ModuleMember -Function Import-BatchEnvironment
 Export-ModuleMember -Function Import-VisualStudioEnvironment
