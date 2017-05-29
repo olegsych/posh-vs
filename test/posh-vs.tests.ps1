@@ -15,32 +15,6 @@ Describe "posh-vs" {
         $global:profile = $originalProfile
     }
 
-    Context "Get-VisualStudio2015BatchFile" {
-        [string] $originalPath
-
-        BeforeEach {
-            $originalPath = $env:VS140ComnTools
-        }
-
-        It 'Returns path to VsDevCmd.bat when $env:V140ComnTools is defined' {
-            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-
-            Get-VisualStudio2015BatchFile | Should Be (Join-Path $env:VS140ComnTools "VsDevCmd.bat")
-        }
-
-        It 'Does not return path to VsDevCmd.bat when $env:V140ComnTools is not defined' {
-            if ($env:VS140ComnTools) {
-                Remove-Item "env:\VS140COMNTOOLS"
-            }
-
-            Get-VisualStudio2015BatchFile | Should BeNullOrEmpty
-        }
-
-        AfterEach {
-            $env:VS140ComnTools = $originalPath
-        }
-    }
-
     Context 'Get-VisualStudioBatchFile' {
         It 'Returns VsDevCmd.bat of Visual Studio 2017 followed by those of Visual Studio 2015' {
             [string] $vs2017BatchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
@@ -218,6 +192,42 @@ Describe "posh-vs" {
                 "Successfully removed posh-vs from profile '$global:profile'."
                 "Restart PowerShell for the changes to take effect."
             )
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudio2015BatchFile' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        [string] $originalPath
+
+        BeforeEach {
+            $originalPath = $env:VS140ComnTools
+        }
+
+        Context '$env:V140ComnTools is defined' {
+            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+
+            It 'Returns path to VsDevCmd.bat' {
+                Get-VisualStudio2015BatchFile | Should Be (Join-Path $env:VS140ComnTools "VsDevCmd.bat")
+            }
+        }
+
+        Context '$env:V140ComnTools is not defined' {
+            if ($env:VS140ComnTools) {
+                Remove-Item 'env:\VS140COMNTOOLS'
+            }
+
+            It 'Returns nothing' {
+                Get-VisualStudio2015BatchFile | Should BeNullOrEmpty
+            }
+        }
+
+        AfterEach {
+            $env:VS140ComnTools = $originalPath
         }
     }
 
