@@ -26,10 +26,11 @@ PS> msbuild /?
 
 ## How it works
 
-`Install-PoshVs` adds a `Import-VisualStudioBatchEnvironment` call to the PowerShell `$profile`. It will import the
-environment variables set by the `VsDevCmd.bat` of the latest version of Visual Studio installed on your computer.
-If multiple instances of Visual Studio 2017 are installed, `Import-VisualStudioBatchEnvironment` will use whichever
-instance happens to be listed first.
+`Install-PoshVs` adds an `Import-VisualStudioBatchEnvironment` call to the PowerShell
+[profile](https://msdn.microsoft.com/en-us/powershell/reference/5.1/microsoft.powershell.core/about/about_profiles).
+It will import the environment variables set by the `VsDevCmd.bat` of the latest version of Visual Studio installed
+on your computer. If multiple instances of Visual Studio 2017 are installed, `Import-VisualStudioBatchEnvironment`
+will use whichever instance happens to be listed first.
 
 To use a specific instance of Visual Studio 2017, manually change your profile to import a specific batch file.
 ```
