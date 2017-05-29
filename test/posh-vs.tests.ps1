@@ -243,17 +243,17 @@ Describe 'Get-VisualStudio2017ApplicationDescription' {
         }
 
         Context 'In a 64-bit PowerShell process' {
-            It 'Returns ApplicationDescription property HKLM:\SOFTWARE\WOW6432Node' {
-                [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-                [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
-                [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
-                Mock Get-ItemProperty -MockWith {
-                    @{ ApplicationDescription = $applicationDescription1 }
-                    @{ ApplicationDescription = $applicationDescription2 }
-                }.GetNewClosure() -ParameterFilter {
-                    $Path -eq 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio_*\Capabilities'
-                }
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            Mock Get-ItemProperty -MockWith {
+                @{ ApplicationDescription = $applicationDescription1 }
+                @{ ApplicationDescription = $applicationDescription2 }
+            }.GetNewClosure() -ParameterFilter {
+                $Path -eq 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio_*\Capabilities'
+            }
 
+            It 'Returns ApplicationDescription property HKLM:\SOFTWARE\WOW6432Node' {
                 Get-VisualStudio2017ApplicationDescription | Should Be @(
                     $applicationDescription1
                     $applicationDescription2
@@ -262,17 +262,17 @@ Describe 'Get-VisualStudio2017ApplicationDescription' {
         }
 
         Context 'In a 32-bit PowerShell process' {
-            It 'Returns ApplicationDescription property from HKLM:\SOFTWARE' {
-                [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-                [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
-                [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
-                Mock Get-ItemProperty -MockWith {
-                    @{ ApplicationDescription = $applicationDescription1 }
-                    @{ ApplicationDescription = $applicationDescription2 }
-                }.GetNewClosure() -ParameterFilter {
-                    $Path -eq 'HKLM:\SOFTWARE\Microsoft\VisualStudio_*\Capabilities'
-                }
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            Mock Get-ItemProperty -MockWith {
+                @{ ApplicationDescription = $applicationDescription1 }
+                @{ ApplicationDescription = $applicationDescription2 }
+            }.GetNewClosure() -ParameterFilter {
+                $Path -eq 'HKLM:\SOFTWARE\Microsoft\VisualStudio_*\Capabilities'
+            }
 
+            It 'Returns ApplicationDescription property from HKLM:\SOFTWARE' {
                 Get-VisualStudio2017ApplicationDescription | Should Be @(
                     $applicationDescription1
                     $applicationDescription2
