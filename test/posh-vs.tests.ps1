@@ -289,15 +289,15 @@ Describe 'Get-VisualStudio2017BatchFile' {
 
     InModuleScope posh-vs {
         Context 'Expected string from Get-VisualStudio2017ApplicationDescription' {
-            It 'Returns VsDevCmd.bat paths relative to location of devenvdesc.dll' {
-                [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-                [string] $instance1RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
-                [string] $instance2RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
-                Mock Get-VisualStudio2017ApplicationDescription {
-                    "@$instance1RootPath\Common7\IDE\devenvdesc.dll,-1234"
-                    "@$instance2RootPath\Common7\IDE\devenvdesc.dll,-321"
-                }.GetNewClosure()
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $instance1RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            [string] $instance2RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2017ApplicationDescription {
+                "@$instance1RootPath\Common7\IDE\devenvdesc.dll,-1234"
+                "@$instance2RootPath\Common7\IDE\devenvdesc.dll,-321"
+            }.GetNewClosure()
 
+            It 'Returns VsDevCmd.bat paths relative to location of devenvdesc.dll' {
                 Get-VisualStudio2017BatchFile | Should Be @(
                     "$instance1RootPath\Common7\Tools\VsDevCmd.bat"
                     "$instance2RootPath\Common7\Tools\VsDevCmd.bat"
@@ -306,12 +306,12 @@ Describe 'Get-VisualStudio2017BatchFile' {
         }
 
         Context 'Unexpected string from Get-VisualStudio2017ApplicationDescription' {
-            It 'Throws descriptive error' {
-                [string] $unexpected = 'unexpected'
-                Mock Get-VisualStudio2017ApplicationDescription {
-                    $unexpected
-                }.GetNewClosure()
+            [string] $unexpected = 'unexpected'
+            Mock Get-VisualStudio2017ApplicationDescription {
+                $unexpected
+            }.GetNewClosure()
 
+            It 'Throws descriptive error' {
                 { Get-VisualStudio2017BatchFile } | Should Throw "Cannot parse Visual Studio ApplicationDescription: $unexpected"
             }
         }
