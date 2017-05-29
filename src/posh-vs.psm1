@@ -58,11 +58,7 @@ function Import-BatchEnvironment {
 Executes Visual Studio 2015's VsDevCmd.bat and copies environment variables it sets
 to the current PowerShell session. #>
 function Import-VisualStudioEnvironment {
-    if (-not $env:VS140COMNTOOLS) {
-        Throw "Unable to determine location of Visual Studio 2015. The VS140COMNTOOLS environment is not set."
-    }
-
-    [string] $batchFile = (Join-Path $env:VS140COMNTOOLS "VsDevCmd.bat")
+    [string] $batchFile = Get-VisualStudioBatchFile | Select-Object -First 1
     Import-BatchEnvironment $batchFile
 }
 

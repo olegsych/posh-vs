@@ -75,36 +75,6 @@ Describe "posh-vs" {
         }
     }
 
-    Context "Import-VisualStudioEnvironment" {
-        [string] $originalPath
-
-        BeforeEach {
-            $originalPath = $env:VS140ComnTools
-        }
-
-        It "Invokes Import-BatchEnvironment with VS2015 VsDevCmd.bat" {
-            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            Mock Import-BatchEnvironment -ModuleName posh-vs
-
-            Import-VisualStudioEnvironment
-
-            [string] $expectedBatchFile = (Join-Path $env:VS140ComnTools "VsDevCmd.bat") 
-            Assert-MockCalled -CommandName Import-BatchEnvironment -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
-        }
-
-        It "Throws descriptive exception when VS140COMNTOOLS environment variable is not set" {
-            if ($env:VS140ComnTools) {
-                Remove-Item "env:\VS140COMNTOOLS"
-            }
-
-            { Import-VisualStudioEnvironment } | Should Throw "Unable to determine location of Visual Studio 2015. The VS140COMNTOOLS environment is not set."
-        }
-
-        AfterEach {
-            $env:VS140ComnTools = $originalPath
-        }
-    }
-
     Context "Install-PoshVs" {
         It "Appends Import-VisualStudioEnvironment commands to existing profile script" {
             [string] $existingScript = "Write-Host Foo"
@@ -321,6 +291,26 @@ Describe 'Get-VisualStudioBatchFile' {
 
             It 'Returns batch files of Visual Studio 2017 followed by those of Visual Studio 2015' {
                 Get-VisualStudioBatchFile | Should Be @($vs2017BatchFile1, $vs2017BatchFile2, $vs2015BatchFile)
+            }
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Import-VisualStudioEnvironment' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Context 'Multiple versions of Visual Studio are installed' {
+            [string] $batchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $batchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudioBatchFile { @($batchFile1, $batchFile2) }.GetNewClosure()
+            Mock Import-BatchEnvironment
+
+            It 'Imports batch environment of the first instance' {
+                Import-VisualStudioEnvironment
+                Assert-MockCalled Import-BatchEnvironment 1 { $batchFile -eq $batchFile1 }
             }
         }
     }
