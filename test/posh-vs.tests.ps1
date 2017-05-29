@@ -159,11 +159,7 @@ Describe 'Get-VisualStudio2015BatchFile' {
     Import-Module $PSScriptRoot\..\src\posh-vs.psm1
 
     InModuleScope posh-vs {
-        [string] $originalPath
-
-        BeforeEach {
-            $originalPath = $env:VS140ComnTools
-        }
+        [string] $originalPath = $env:VS140ComnTools
 
         Context '$env:V140ComnTools is defined' {
             $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
@@ -183,9 +179,7 @@ Describe 'Get-VisualStudio2015BatchFile' {
             }
         }
 
-        AfterEach {
-            $env:VS140ComnTools = $originalPath
-        }
+        $env:VS140ComnTools = $originalPath
     }
 
     Remove-Module posh-vs
