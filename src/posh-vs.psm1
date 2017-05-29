@@ -1,6 +1,36 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]        
 param()
 
+function Get-VisualStudio2015BatchFile {
+    if ($env:VS140ComnTools) {
+        Join-Path $env:VS140ComnTools "VsDevCmd.bat"
+    }
+}
+
+function Get-VisualStudio2017ApplicationDescription {
+    & {
+        Get-ItemProperty HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio_*\Capabilities
+        Get-ItemProperty HKLM:\SOFTWARE\Microsoft\VisualStudio_*\Capabilities
+    } | ForEach-Object { $_.ApplicationDescription }
+}
+
+function Get-VisualStudio2017BatchFile {
+    Get-VisualStudio2017ApplicationDescription |
+    ForEach-Object {
+        # @C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenvdesc.dll,-1004
+        if ($_ -match '@(?<Common7>.*)\\IDE\\devenvdesc.dll,-(?:\d*)') {
+            return Join-Path $matches.Common7 'Tools\VsDevCmd.bat'
+        }
+
+        throw "Cannot parse Visual Studio ApplicationDescription: $_"
+    }
+}
+
+function Get-VisualStudioBatchFile {
+    Get-VisualStudio2017BatchFile
+    Get-VisualStudio2015BatchFile
+}
+
 <# .SYNOPSIS 
 Executes a batch file and copies environment variables it sets to the current
 PowerShell session #>
@@ -28,11 +58,7 @@ function Import-BatchEnvironment {
 Executes Visual Studio 2015's VsDevCmd.bat and copies environment variables it sets
 to the current PowerShell session. #>
 function Import-VisualStudioEnvironment {
-    if (-not $env:VS140COMNTOOLS) {
-        Throw "Unable to determine location of Visual Studio 2015. The VS140COMNTOOLS environment is not set."
-    }
-
-    [string] $batchFile = (Join-Path $env:VS140COMNTOOLS "VsDevCmd.bat")
+    [string] $batchFile = Get-VisualStudioBatchFile | Select-Object -First 1
     Import-BatchEnvironment $batchFile
 }
 

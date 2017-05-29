@@ -75,36 +75,6 @@ Describe "posh-vs" {
         }
     }
 
-    Context "Import-VisualStudioEnvironment" {
-        [string] $originalPath
-
-        BeforeEach {
-            $originalPath = $env:VS140ComnTools
-        }
-
-        It "Invokes Import-BatchEnvironment with VS2015 VsDevCmd.bat" {
-            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
-            Mock Import-BatchEnvironment -ModuleName posh-vs
-
-            Import-VisualStudioEnvironment
-
-            [string] $expectedBatchFile = (Join-Path $env:VS140ComnTools "VsDevCmd.bat") 
-            Assert-MockCalled -CommandName Import-BatchEnvironment -ParameterFilter { $batchFile -eq $expectedBatchFile } -ModuleName posh-vs
-        }
-
-        It "Throws descriptive exception when VS140COMNTOOLS environment variable is not set" {
-            if ($env:VS140ComnTools) {
-                Remove-Item "env:\VS140COMNTOOLS"
-            }
-
-            { Import-VisualStudioEnvironment } | Should Throw "Unable to determine location of Visual Studio 2015. The VS140COMNTOOLS environment is not set."
-        }
-
-        AfterEach {
-            $env:VS140ComnTools = $originalPath
-        }
-    }
-
     Context "Install-PoshVs" {
         It "Appends Import-VisualStudioEnvironment commands to existing profile script" {
             [string] $existingScript = "Write-Host Foo"
@@ -179,6 +149,163 @@ Describe "posh-vs" {
                 "Successfully removed posh-vs from profile '$global:profile'."
                 "Restart PowerShell for the changes to take effect."
             )
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudio2015BatchFile' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        [string] $originalPath = $env:VS140ComnTools
+
+        Context '$env:V140ComnTools is defined' {
+            $env:VS140ComnTools = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+
+            It 'Returns path to VsDevCmd.bat' {
+                Get-VisualStudio2015BatchFile | Should Be (Join-Path $env:VS140ComnTools "VsDevCmd.bat")
+            }
+        }
+
+        Context '$env:V140ComnTools is not defined' {
+            if ($env:VS140ComnTools) {
+                Remove-Item 'env:\VS140COMNTOOLS'
+            }
+
+            It 'Returns nothing' {
+                Get-VisualStudio2015BatchFile | Should BeNullOrEmpty
+            }
+        }
+
+        $env:VS140ComnTools = $originalPath
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudio2017ApplicationDescription' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Mock Get-ItemProperty {
+            # Visual Studio 2017 is not installed
+        }
+
+        Context 'In a 64-bit PowerShell process' {
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            Mock Get-ItemProperty -MockWith {
+                @{ ApplicationDescription = $applicationDescription1 }
+                @{ ApplicationDescription = $applicationDescription2 }
+            }.GetNewClosure() -ParameterFilter {
+                $Path -eq 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\VisualStudio_*\Capabilities'
+            }
+
+            It 'Returns ApplicationDescription property HKLM:\SOFTWARE\WOW6432Node' {
+                Get-VisualStudio2017ApplicationDescription | Should Be @(
+                    $applicationDescription1
+                    $applicationDescription2
+                )
+            }
+        }
+
+        Context 'In a 32-bit PowerShell process' {
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $applicationDescription1 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            [string] $applicationDescription2 = "@$(Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName()))\Common7\IDE\devenvdesc.dll,-1234"
+            Mock Get-ItemProperty -MockWith {
+                @{ ApplicationDescription = $applicationDescription1 }
+                @{ ApplicationDescription = $applicationDescription2 }
+            }.GetNewClosure() -ParameterFilter {
+                $Path -eq 'HKLM:\SOFTWARE\Microsoft\VisualStudio_*\Capabilities'
+            }
+
+            It 'Returns ApplicationDescription property from HKLM:\SOFTWARE' {
+                Get-VisualStudio2017ApplicationDescription | Should Be @(
+                    $applicationDescription1
+                    $applicationDescription2
+                )
+            }
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudio2017BatchFile' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Context 'Expected string from Get-VisualStudio2017ApplicationDescription' {
+            [string] $vs2017RootPath = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $instance1RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            [string] $instance2RootPath = Join-Path $vs2017RootPath ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2017ApplicationDescription {
+                "@$instance1RootPath\Common7\IDE\devenvdesc.dll,-1234"
+                "@$instance2RootPath\Common7\IDE\devenvdesc.dll,-321"
+            }.GetNewClosure()
+
+            It 'Returns VsDevCmd.bat paths relative to location of devenvdesc.dll' {
+                Get-VisualStudio2017BatchFile | Should Be @(
+                    "$instance1RootPath\Common7\Tools\VsDevCmd.bat"
+                    "$instance2RootPath\Common7\Tools\VsDevCmd.bat"
+                )
+            }
+        }
+
+        Context 'Unexpected string from Get-VisualStudio2017ApplicationDescription' {
+            [string] $unexpected = 'unexpected'
+            Mock Get-VisualStudio2017ApplicationDescription {
+                $unexpected
+            }.GetNewClosure()
+
+            It 'Throws descriptive error' {
+                { Get-VisualStudio2017BatchFile } | Should Throw "Cannot parse Visual Studio ApplicationDescription: $unexpected"
+            }
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Get-VisualStudioBatchFile' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Context 'Multiple versions of Visual Studio are installed' {
+            [string] $vs2017BatchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $vs2017BatchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2017BatchFile { @($vs2017BatchFile1, $vs2017BatchFile2) }.GetNewClosure()
+
+            [string] $vs2015BatchFile = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudio2015BatchFile { $vs2015BatchFile }.GetNewClosure()
+
+            It 'Returns batch files of Visual Studio 2017 followed by those of Visual Studio 2015' {
+                Get-VisualStudioBatchFile | Should Be @($vs2017BatchFile1, $vs2017BatchFile2, $vs2015BatchFile)
+            }
+        }
+    }
+
+    Remove-Module posh-vs
+}
+
+Describe 'Import-VisualStudioEnvironment' {
+    Import-Module $PSScriptRoot\..\src\posh-vs.psm1
+
+    InModuleScope posh-vs {
+        Context 'Multiple versions of Visual Studio are installed' {
+            [string] $batchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            [string] $batchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Get-VisualStudioBatchFile { @($batchFile1, $batchFile2) }.GetNewClosure()
+            Mock Import-BatchEnvironment
+
+            It 'Imports batch environment of the first instance' {
+                Import-VisualStudioEnvironment
+                Assert-MockCalled Import-BatchEnvironment 1 { $batchFile -eq $batchFile1 }
+            }
         }
     }
 

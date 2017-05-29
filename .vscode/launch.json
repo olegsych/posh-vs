@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Invoke-Pester",
+            "script": "Invoke-Pester",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
