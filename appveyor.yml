@@ -12,7 +12,7 @@ branches:
 
 environment:
   PowerShellGalleryApiKey:
-    secure: rRDrp3zXv9dYV/vbDq/J8ULAnArDiJz+qJqi4pxade8NWfYFwrr5TYu116nlKmFV
+    secure: ej6Bf8C17OGD+9ozkDrfwsYbpPJavwHAbZ5MHI0g/F4KgFDcygliwuBSRlmQImku
 
 install:
 - ps: .\init.ps1
