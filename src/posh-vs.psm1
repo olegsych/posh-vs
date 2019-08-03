@@ -100,6 +100,8 @@ function Install-PoshVs {
 <# .SYNOPSIS
 Removes Import-Module and Import-VisualStudioEnvironment from the current PowerShell profile script. #>
 function Uninstall-PoshVs {
+    [CmdletBinding()] param ()
+
     if (Test-Path $profile) {
         [string[]] $script = Get-Content $profile
         $script | Where-Object {
