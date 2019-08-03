@@ -55,9 +55,16 @@ function Import-BatchEnvironment {
 }
 
 <# .SYNOPSIS
-Executes Visual Studio 2015's VsDevCmd.bat and copies environment variables it sets
+Executes Visual Studio's VsDevCmd.bat and copies the environment variables it sets
 to the current PowerShell session. #>
 function Import-VisualStudioEnvironment {
+    [CmdletBinding()] param ()
+
+    if ($env:DevEnvDir) {
+        Write-Verbose "Visual Studio environment has already been imported from $($env:DevEnvDir)."
+        return
+    }
+
     [string] $batchFile = Get-VisualStudioBatchFile | Select-Object -First 1
     Import-BatchEnvironment $batchFile
 }

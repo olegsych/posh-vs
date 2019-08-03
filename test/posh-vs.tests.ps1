@@ -18,7 +18,7 @@ Describe "posh-vs" {
     Context "Import-BatchEnvironment" {
         [string] $batchFile
         [string] $variable
-        [string] $value 
+        [string] $value
 
         BeforeEach {
             $variable = [guid]::NewGuid()
@@ -28,17 +28,17 @@ Describe "posh-vs" {
 
         It "Invokes specified batch file and extracts environment variables it sets" {
             "set $variable=$value" | Out-File $batchFile -Encoding ascii
-            
+
             Import-BatchEnvironment -batchFile $batchFile
-            
+
             (Get-Item "env:$variable").Value | Should Be $value
         }
 
         It "Ignores output of batch file itself to avoid mistaking its output for actual environment variables" {
             "echo $variable=$value"  | Out-File $batchFile -Encoding ascii
 
-            Import-BatchEnvironment -batchFile $batchFile 
-            
+            Import-BatchEnvironment -batchFile $batchFile
+
             Test-Path "env:$variable" | Should Be $false
         }
 
@@ -52,7 +52,7 @@ Describe "posh-vs" {
 
             Import-BatchEnvironment -batchFile $batchFile
 
-            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "Executing '$batchFile' to capture environment variables it sets." } -ModuleName posh-vs 
+            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "Executing '$batchFile' to capture environment variables it sets." } -ModuleName posh-vs
         }
 
         It "Writes verbose message with details about imported environment variables" {
@@ -61,7 +61,7 @@ Describe "posh-vs" {
 
             Import-BatchEnvironment -batchFile $batchFile
 
-            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "`$env:$variable=$value" } -ModuleName posh-vs 
+            Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "`$env:$variable=$value" } -ModuleName posh-vs
         }
 
         AfterEach {
@@ -137,10 +137,10 @@ Describe "posh-vs" {
         It "Preserves code unrelated to posh-vs" {
             [string[]] $expected = @( "Write-Host Foo")
             $expected | Out-File $global:profile
-            
+
             Uninstall-PoshVs
-            
-            [string[]] $actual = Get-Content $global:profile 
+
+            [string[]] $actual = Get-Content $global:profile
             $actual | Should Be $expected
         }
 
@@ -296,7 +296,10 @@ Describe 'Import-VisualStudioEnvironment' {
     Import-Module $PSScriptRoot\..\src\posh-vs.psm1
 
     InModuleScope posh-vs {
+        [string] $originalDevEnvDir = $env:DevEnvDir
+
         Context 'Multiple versions of Visual Studio are installed' {
+            $env:DevEnvDir = $null
             [string] $batchFile1 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
             [string] $batchFile2 = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
             Mock Get-VisualStudioBatchFile { @($batchFile1, $batchFile2) }.GetNewClosure()
@@ -307,6 +310,24 @@ Describe 'Import-VisualStudioEnvironment' {
                 Assert-MockCalled Import-BatchEnvironment 1 { $batchFile -eq $batchFile1 }
             }
         }
+
+        Context 'Visual Studio environment is already imported' {
+            $env:DevEnvDir = Join-Path $env:TEMP ([IO.Path]::GetRandomFileName())
+            Mock Import-BatchEnvironment
+
+            It 'Does not import batch environment again' {
+                Import-VisualStudioEnvironment
+                Assert-MockCalled Import-BatchEnvironment -Exactly 0
+            }
+
+            It 'Writes verbose message explaining why environment wasn''t imported again' {
+                Mock Write-Verbose -ModuleName posh-vs
+                Import-VisualStudioEnvironment
+                Assert-MockCalled -CommandName Write-Verbose -ParameterFilter { $message -eq "Visual Studio environment has already been imported from $($env:DevEnvDir)." } -ModuleName posh-vs
+            }
+        }
+
+        $env:DevEnvDir = $originalDevEnvDir
     }
 
     Remove-Module posh-vs
