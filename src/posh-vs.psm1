@@ -1,4 +1,4 @@
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]        
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function", Target="*-PoshVS", Justification="PoshVs is a singular noun")]
 param()
 
 function Get-VisualStudio2015BatchFile {
@@ -31,7 +31,7 @@ function Get-VisualStudioBatchFile {
     Get-VisualStudio2015BatchFile
 }
 
-<# .SYNOPSIS 
+<# .SYNOPSIS
 Executes a batch file and copies environment variables it sets to the current
 PowerShell session #>
 function Import-BatchEnvironment {
@@ -81,9 +81,9 @@ function Install-PoshVs {
     }
 
     if ($importEnvironment) {
-        $profileScript += "Import-VisualStudioEnvironment" 
+        $profileScript += "Import-VisualStudioEnvironment"
     }
-    
+
     $profileScript | Out-File $profile
 
     Write-Output "Successfully added posh-vs to profile '$profile'."
@@ -91,17 +91,17 @@ function Install-PoshVs {
     Write-Output "    . `$profile"
 }
 
-<# .SYNOPSIS 
+<# .SYNOPSIS
 Removes Import-Module and Import-VisualStudioEnvironment from the current PowerShell profile script. #>
 function Uninstall-PoshVs {
     if (Test-Path $profile) {
         [string[]] $script = Get-Content $profile
-        $script | Where-Object { 
+        $script | Where-Object {
             -not ($_ -match $importModulePattern) -and
             -not ($_ -match $importEnvironmentPattern)
         } | Out-File $profile
     }
-    
+
     Write-Output "Successfully removed posh-vs from profile '$profile'."
     Write-Output "Restart PowerShell for the changes to take effect."
 }
