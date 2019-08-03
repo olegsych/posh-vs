@@ -75,6 +75,8 @@ function Import-VisualStudioEnvironment {
 <# .SYNOPSIS
 Adds Import-Module and Import-VisualStudioEnvironment commands to the current PowerShell profile script. #>
 function Install-PoshVs {
+    [CmdletBinding()] param ()
+
     [string[]] $profileScript = @()
     [bool] $importEnvironment = $true
     if (Test-Path $profile) {
